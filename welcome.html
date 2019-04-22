@@ -1,0 +1,51 @@
+<?php
+	session_start();
+	//$myid = $_POST["customer"];
+	$myid = $_SESSION["customer"];
+	unset($_SESSION["customer"]);
+?>
+<!DOCTYPE html>
+<html>
+<head>
+	<title>welcome</title>
+	<meta charset="utf-8">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+	<style>
+	body{ width: 100%; height: 100%; text-align: center;  font-weight: 900; overflow: hidden; font-size: 35pt;}
+	</style>
+</head>
+<body>
+	<h1> 제품 준비중입니다.</h1>	
+<script>	
+	window.onload = function(){
+		var myid = '<?php echo $myid; ?>';	
+		var height = window.innerHeight;
+		$('h1').css('margin-top',height*0.3);	
+		var play = setInterval(function(){
+			check(myid);
+			
+		}, 2000); 
+	}
+	function check(myid){
+//		alert(myid);
+		$.ajax({
+				url : "myorder.php",
+				method : "POST",
+				data : {
+					myid : myid
+				},
+				success : function(data){
+					if(data=='1'){
+//						alert("제품이 완료되었습니다.");
+						window.location.href="myorder_com.html";
+						clearInterval(play);
+					}else{
+//						alert(data);
+					}
+				}
+				
+			}); 
+	}
+</script>
+</body>
+</html>

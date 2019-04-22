@@ -1,0 +1,314 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8" />
+<meta name="viewport" content="height=1080, width=1920, user-scalable=no" />
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+<style type ="text/css">
+body {background-color: rgb(255, 255, 255); overflow: hidden;}
+h1   {color: rgb(51, 14, 138);}
+#Menu{
+	position: fixed;
+	width:100%;
+	top:600px;
+	text-align: center;
+	color: blue;
+	font-size: 40pt;	
+	align-content: center;
+}
+#USER{
+	position: fixed;
+	width:100%;
+	top:100px;
+	text-align: center;
+	color: red;
+	font-size: 20pt;	
+	align-content: center;
+}
+
+
+#video { 
+     position: absolute;
+     top: 0px;
+     left: 0px;
+     min-width: 100%;
+     min-height: 100%;
+     width: auto;
+     height: auto;
+     z-index: -1;
+     overflow: hidden;
+}
+#top{
+	position: fixed;
+	top : 60%;
+	left : 20%;
+	color : white;
+	background-color: gray;
+	opacity: 0.9;
+	filter: alpha(opacity=90);
+	-moz-opacity:0.9;
+	-khtml-opacity: 0.9;
+	height: 220px;
+	width: 1000px;
+	padding : 20px;
+	font-size: 14pt;
+	display: inline-block;
+
+}
+.topmenu{
+	background-size: cover;
+	width: 220px;
+	height: 220px;
+	display: inline-block;
+	margin : 0;
+	padding: 0;
+	line-height: 200%;
+	font-weight: 600;
+	border : 0;
+	opacity: 1;
+	filter: alpha(opacity=100);
+}
+span{
+	color : black;
+	font-weight: 900;
+
+}
+p{
+	color : red;
+	font-weight: 800;
+	font-size: 25pt;
+	line-height: 60%;
+}
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+<script type="text/javascript" src="http://svcapi.gigagenie.ai/sdk/v1.0/js/gigagenie.js"></script>
+<script type="text/javascript">
+
+var options={};
+var apistatus=0;
+var ws;
+var status='NI';
+var appid;
+var containerid;
+var wsstate=0;
+var initstate=0;
+var authcode;
+// 서비스 초기화
+
+var myVar;
+
+function myFunction()
+{
+myVar=setInterval(function(){myTimer()},1000);
+}
+
+function myTimer()
+{
+status_login("a1234")
+}
+
+function myStopFunction()
+{
+clearInterval(myVar);
+}
+function init(){
+	options={};
+	options.keytype="GBOXDEVM"; // 또는 GBOXCOMM"; // 개발(GBOXDEVM) 또는 상용(GBOXCOMM) 키 종류 입력
+	options.apikey="RTUwMDE4NjB8R0JPWERFVk18MTUyODA3MTAzODMyNw=="; // 개발자 포털에서 키를 발급받아 입력
+        //options.keytype="GBOXCOMM"; // 개발자센터에서 승인이 되어야 사용하실 수 있습니다.
+	gigagenie.init(options,function(result_cd,result_msg,extra){
+		if(result_cd===200){
+			status='IS';
+			console.log('Initialize Success');
+			myFunction();
+			//alert("init 실행완료")
+            //myFunction();
+            //status_login('a1234');
+            
+		};
+	});
+}
+
+gigagenie.voice.onRequestClose=function(){
+	options={};
+	gigagenie.voice.svcFinished(options,function(result_cd,result_msg,extra){
+	});
+};
+
+var truncatecnt = 0
+function startNineNine(user){
+	if(truncatecnt == 3){
+		truncatetmp('yes')
+	}
+	var options={};
+	//var numbers=getNumber();
+	options.voicemsg="안녕하세요 " + user + " 님  지니 카페 입니다 무엇을 도와드릴까요?";
+	//var solution=numbers[0]*numbers[1];
+	gigagenie.voice.getVoiceText(options,function(result_cd,result_msg,extra){
+		//alert(result_cd);
+		if(result_cd===200){
+			alert(extra.voicetext);
+			if(extra.voicetext == "주문" || extra.voicetext == "주문할게")
+			{
+				goReplace('gini.html');
+				
+			}
+			if(extra.voicetext == "매장 정보" || extra.voicetext == "매장 정보 알려줘")
+			{
+				sendTTSAPI("화장실은 카운터 우측 계단 3층에 있으며 비밀번호는 없습니다 저희 매장은 8시에 오픈 후 밤 10시가 되면 마감합니다 와이파이는 화면의 우측부분을 참고해주세요  감사합니다");
+				goReplace('info.html');
+			}
+			if(extra.voicetext == "로그아웃" || extra.voicetext == "나갈래" || extra.voicetext == "괜찮아")
+			{
+				sendTTSAPI("알겠습니다 안녕하가세요");
+				truncatetmp('yes');
+			}
+			else
+			{
+				startNineNine(user);
+			}
+			//if(extra.voicetext == "화장실")
+			//{
+				//goReplace('info.html');
+			//}
+		}
+		else if(result_cd===503){
+			truncatecnt = truncatecnt + 1;
+			startNineNine(user);
+		} 
+		else {
+			truncatecnt = truncatecnt + 1;
+			alert("필요하신 사항을 말해주세요");
+			startNineNine(user);
+		}
+		
+	});
+};
+
+function truncatetmp(yes){
+		if(yes == "yes"){
+			$.ajax({
+			url: "truncatetmp.php",
+			method: "POST",
+			success: function(data){
+				if(data == '2'){
+					alert("로그아웃");
+
+					window.location.href="video.html";
+				}
+				else{
+					alert("로그아웃 실패");
+				}
+			}
+			})
+		}
+		else{
+			alert("error");
+		}
+	}
+
+/*
+function getNumber(){
+	var ret=[];
+	var x=0;
+	while(x<3 || x>9) x=Math.floor(Math.random()*10);
+	var y=0;
+	while(y<3 || y>9) y=Math.floor(Math.random()*10);
+	if(x*y<20) return getNumber();
+	ret.push(x);
+	ret.push(y);
+	return ret;
+};
+*/
+gigagenie.media.onMuteRequest=function(extra){
+	if(extra) console.log("Mute!");
+	else console.log("unMute!");
+};
+function stopTTS() {
+	alert("음성인식 중단 요청");
+	var options={};
+	gigagenie.voice.stopTTS(options,function(result_cd, result_msg, extra) {
+		if (result_cd==200) {
+			alert("음성인식 중단 성공");
+		}
+		else if (result_cd==404) {
+			alert("음성인식 실행 중이 아님");
+		}
+		else {
+			alert("음성인식 중단 실패: " + result_msg);
+		}
+	});
+}
+
+function sendTTSAPI(ttstext) {
+	var options={};
+	alert("startTTS")
+	options.ttstext = ttstext;
+	gigagenie.voice.sendTTS(options,function(result_cd,result_msg,extra) {
+		
+	if(result_cd == 200) {
+		}
+	else if(result_cd == 501){} // KWS에 의해 정지됨 (Pause/Resume)
+	else if(result_cd == 503){} // StopTTS에 의해 정지됨 (Pause/Resume)
+	alert(result_cd);
+	
+	});
+}
+
+
+function goReplace(str) { 
+	location.replace(str); 
+}
+
+function status_login(userid){
+		$.ajax({
+			url: "logincheck.php",
+			method: "POST",
+			data: {
+				userid : userid
+			},
+			success: function(data){
+				if(data !='2'){
+					alert("로그인 발견");
+					var o = document.getElementById('help');
+					document.getElementById('help').innerText = "사용자ID : " + data;
+//					document.getElementById('help').innerText = "안녕하세요 지니카페입니다. 무엇을 도와드릴까요?";
+					//sendTTSAPI("안녕하세요 지니카페입니다. 무엇을 도와드릴까요?");
+					o.style.color = "#050099";
+					o.style.fontSize = "20pt";
+					var a = document.getElementById('logo');
+					a.style.backgroundImage = "url('logo.png')";
+					myStopFunction();
+					startNineNine(data);
+				}
+			}
+		})
+}
+
+
+
+</script>
+</head>
+
+<body onload=init()>
+	<video id="video" preload="auto" autoplay="true" loop="loop" muted="muted" volume="0">
+      <source src="BTS (방탄소년단) FAKE LOVE Official Teaser 2.mp4">
+	</video>
+
+<!--    <div id="USER" style="height: 50px; text-align: center;z-index:1">로그인을 해주세요</div> -->
+
+    <div id="top">
+    	<div class="topmenu" id="logo" style="background-image: url('login.png');">
+    	</div>
+    	<div class="topmenu" style="width: 600px; padding-left: 15px;">
+    		<p id="help"> ◀ QR코드 로그인을 실행하신 후 </p>
+    		주문을 원하시면 " <span>주문</span>" 혹은 "<span>주문할게</span>"" 라고 말해주세요.<br>
+			매장정보를 원하시면 " <span>매장정보</span>" 혹은 "<span>매장정보 알려줘</span>"" 라고 말해주세요.<br/>
+			매장정보 : (“화장실 위치“, “와이파이 비밀번호“, “영업시간”)
+			<br/>
+			<br/>
+    	</div>
+    </div>
+</body>
+
+</html>

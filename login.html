@@ -1,0 +1,96 @@
+<?php
+
+session_start();
+$connect = mysqli_connect("localhost", "root", "genius", "ginialba");
+mysqli_set_charset($conn, 'utf8');
+
+if(isset($_POST["sub"]))
+{
+	$userid = $_POST["customer"];
+	$query = "SELECT * FROM customer WHERE id = '".$userid."'";
+	$result = mysqli_query($connect, $query);
+
+	//해당 값이 1개이상 존재 
+	if(mysqli_num_rows($result) > 0)
+	{
+		$query = "SELECT * FROM tmplist";
+		$result = mysqli_query($connect, $query);
+		if(mysqli_num_rows($result) == 0){
+			$query = "INSERT INTO tmplist (menu, cnt, price, ID) VALUES ('',  0, 0,'".$userid."' )";
+			mysqli_query($connect, $query);
+			$_SESSION["customer"] = $userid;
+
+			header("location:welcome.html");
+
+		}
+		else{
+			echo "다른 사람이 주문중입니다.";
+		}
+
+	}
+	else{
+		echo $userid."는 존재하지 않는 ID입니다.";
+	}
+	
+}
+?>
+<!DOCTYPE html>
+<html>
+<head>
+	<title>고객 페이지</title>
+	<meta charset="utf-8">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+	<style>
+	body, head{ width: 100%; height: 100%; 
+		background-color: #6799FF; overflow: hidden; text-align: center; font-size: 16pt;}
+	#main{
+		width: 100%;
+		height: 100%;
+		border : 0;
+		vertical-align: middle;
+		text-align: center;
+		outline: 0;
+		color : white;
+		font-weight: 900;
+		top : 10%;
+		padding-top: :2%;
+		font-size: 25pt;
+	}
+	#input{
+		width: 90%;
+		height: 3em;
+		margin-bottom: 2em;
+		font-size: 1em;
+		text-align: center;
+		vertical-align: middle;
+		color: lightgray;
+	}
+	.btn{
+		width: 90%;
+		height: 2em;
+		font-size: 2em;
+		border: 0;
+		outline: 0;
+		background-color: white;
+		border-radius: 3em;
+		color : gray;
+		font-weight: 700;
+	}
+	</style>
+</head>
+<body>
+	<div id = "main" >
+		<h1 style="letter-spacing: 5px; line-height: 120%;"> Login </h1>
+	<form method="post" action="welcome.html">
+		<input type="text" id="input" placeholder="Enter Userid" name="customer"/><br/>
+		<input type="submit" class="btn" name="sub" id="sub"style="font-size:20pt; height: 100px;" value="Submit" />
+	</form>
+	<input type="button" class="btn" style="font-size:20pt; height: 100px; margin-top:10px;" value="register"onclick="reg()" />
+	</div>
+	<script>
+		function reg(){
+			window.location.href="register.php";
+		}
+	</script>
+</body>
+</html>

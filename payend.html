@@ -1,0 +1,41 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>payend</title>
+	<meta charset="utf-8">
+	<style>
+	html, body{ width: 100%; height: 100%; overflow: hidden;}
+
+	#box{
+		display: block;
+		height: 20%;
+		width: 50%;
+		margin: 0;
+		font-size: 25pt;
+		color : white;
+		text-align: center;
+		padding: 1em;
+		line-height: 200%;
+		font-weight: 900;
+		margin-top: 18%;
+		margin-left : 23%;
+
+	}
+	</style>
+</head>
+<body>
+	<div id="box" style="color: black; background-color:lightgray;">
+	결제 완료되셨습니다 감사합니다!<Br/>
+	잠시 후 홈화면으로 이동합니다…
+	</div>
+	<script>
+		var init = setInterval(function(){
+			//window.location.href="init.php";
+			window.location.href="video.html";
+			clearInterval(init);
+		}, 3000);
+	</script>
+</div>
+</body>
+</html>

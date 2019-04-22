@@ -1,0 +1,504 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8" />
+<meta name="viewport" content="height=1080, width=1920, user-scalable=no" />
+<style type ="text/css">
+body {background-color: rgb(255, 255, 255);}
+h1   {color: rgb(51, 14, 138);}
+#Menu{
+	position: fixed;
+	width:100%;
+	top:100px;
+	text-align: center;
+	color: black;
+	font-size: 40pt;	
+	align-content: center;
+}
+#Menu1{
+	position: fixed;
+	width:100%;
+	top:200px;
+	text-align: center;
+	color: black;
+	font-size: 40pt;	
+	align-content: center;
+}
+#Menu2{
+	position: fixed;
+	width:100%;
+	top:290px;
+	text-align: center;
+	color: black;
+	font-size: 40pt;	
+	align-content: center;
+}
+#Menu3{
+	position: fixed;
+	width:100%;
+	top:380px;
+	text-align: center;
+	color: black;
+	font-size: 40pt;	
+	align-content: center;
+}
+#Menu4{
+	position: fixed;
+	width:100%;
+	top:470px;
+	text-align: center;
+	color: black;
+	font-size: 40pt;	
+	align-content: center;
+}
+#Menu5{
+	position: fixed;
+	width:100%;
+	top:560px;
+	text-align: center;
+	color: black;
+	font-size: 40pt;	
+	align-content: center;
+}
+#Menu6{
+	position: fixed;
+	width:100%;
+	top:650px;
+	text-align: center;
+	color: black;
+	font-size: 40pt;	
+	align-content: center;
+}
+#top{
+	position: fixed;
+	top : 60%;
+	left : 20%;
+	color : white;
+	background-color: gray;
+	opacity: 0.9;
+	filter: alpha(opacity=90);
+	-moz-opacity:0.9;
+	-khtml-opacity: 0.9;
+	height: 200px;
+	width: 1000px;
+	padding : 20px;
+	font-size: 14pt;
+	display: inline-block;
+	line-height: 200%;
+	font-weight: 600;
+}
+
+span{
+	color : black;
+	font-weight: 900;
+
+}
+
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+<script type="text/javascript" src="http://svcapi.gigagenie.ai/sdk/v1.0/js/gigagenie.js"></script>
+<script type="text/javascript">
+var options={};
+var apistatus=0;
+var ws;
+var status='NI';
+var appid;
+var containerid;
+var wsstate=0;
+var initstate=0;
+var authcode;
+// 서비스 초기화
+
+//status_pay('yes');
+
+
+
+function init(){
+	options={};
+	options.keytype="GBOXDEVM"; // 또는 GBOXCOMM"; // 개발(GBOXDEVM) 또는 상용(GBOXCOMM) 키 종류 입력
+	options.apikey="RTUwMDE4NjB8R0JPWERFVk18MTUyODA3MTAzODMyNw=="; // 개발자 포털에서 키를 발급받아 입력
+        //options.keytype="GBOXCOMM"; // 개발자센터에서 승인이 되어야 사용하실 수 있습니다.
+	gigagenie.init(options,function(result_cd,result_msg,extra){
+		if(result_cd===200){
+			status='IS';
+			console.log('Initialize Success');
+			//recommending();
+			//alert("init 실행완료")
+            sendTTSAPI("주문하실 음료를 고르시면 기가지니를 불러주세요");
+            //startNine();
+		};
+	});
+}
+
+gigagenie.voice.onRequestClose=function(){
+	options={};
+	gigagenie.voice.svcFinished(options,function(result_cd,result_msg,extra){
+	});
+};
+
+var menucount = 0;
+finalMenu = new Array;
+finalAmount = new Array;
+
+
+
+gigagenie.voice.onActionEvent=function(extra){
+	alert("Intent");
+	var word = extra.uword;
+    	switch(extra.actioncode){
+        // OrderMenu 인텐트 처리
+        case 'ordering_intent':
+        //alert("메뉴개수는:"+menucount);
+        var menustr = extra.parameter['NE-MENU'];
+        var amountstr = extra.parameter['NE-AMOUNT'];
+
+        var menuArray = menustr.split('^');
+        var amountArray = amountstr.split('^');
+
+        //menucount = menuArray.length;
+
+        for(i=0;i<menuArray.length;i++)
+        {
+        	document.getElementById('Menu'+String(i+1+menucount)).innerText = menuArray[i] +'  ' +  amountArray[i];
+        	finalMenu.push(menuArray[i]);
+        	finalAmount.push(amountArray[i]);
+        }
+
+        menucount = menucount + menuArray.length;
+
+        confirmorder();
+
+		
+		break;
+
+		case 'recommend':
+		recommending();
+		alert("추천시작");
+		break;
+
+        default:
+		break;
+	}
+}
+
+
+function recommending(){
+	var options={};
+		options.voicemsg= "고객님께 맞춤형 음료추천을 해드릴까요?"
+		gigagenie.voice.getVoiceText(options,function(result_cd,result_msg,extra){
+
+			if(extra.voicetext == "응" || extra.voicetext == "그래" || extra.voicetext == "좋아"){
+				
+				status_reco('yes');
+			}
+			if(extra.voicetext == "아니" || extra.voicetext == "아니야" || extra.voicetext == "괜찮아"){
+				sendTTSAPI("알겠습니다 주문하실 메뉴를 정하시면 기가지니를 불러주세요!");
+			}
+    		if(result_cd===200){
+        		//console.log("Received Text is "+extra.voicetext);
+        		alert(extra.voicetext);
+        		//alert(options.mode);
+        	}
+        	else{
+        		alert("죄송합니다 다시 말씀해주세요");
+        		recommending();
+        	}
+		});
+}
+
+function status_reco(yes){
+		if(yes == "yes"){
+			//alert("finalpay "+yes);
+			$.ajax({
+			url: "reco.php",
+			method: "POST",
+			success: function(data){
+				//sendTTSAPI("고객님 "+data+"는 어떠세요?");
+				if(data == ''){
+					sendTTSAPI("아직 고객님의 주문내역정보가 부족하여 정확한 추천을 해드릴 수 없습니다 죄송합니다");
+				}
+				else
+				{
+					recommending2(data);
+				}
+				alert(data);
+			}
+			})
+		}
+	}
+function recommending2(recodrink){
+	var options={};
+		options.voicemsg= "고객님 "+recodrink+"는 어떠세요? 고객님이 좋아하실 것 같아요"
+		gigagenie.voice.getVoiceText(options,function(result_cd,result_msg,extra){
+
+			if(extra.voicetext == "좋아" || extra.voicetext == "그거 줘" || extra.voicetext == "그래"){
+				//sendTTSAPI("알겠습니다 메뉴에 추가하였습니다");
+				document.getElementById('Menu'+String(1+menucount)).innerText = recodrink +'  ' +  '1잔';
+        		finalMenu.push(recodrink);
+        		finalAmount.push('1잔');
+        		menucount = menucount + 1;
+        		confirmorder();
+			}
+			if(extra.voicetext == "아니" || extra.voicetext == "싫어" || extra.voicetext == "됬어"){
+				sendTTSAPI("알겠습니다 주문하실 메뉴를 정하시면 기가지니를 불러주세요!");
+			}
+    		if(result_cd===200){
+        		//console.log("Received Text is "+extra.voicetext);
+        		//alert(extra.voicetext);
+        		//alert(options.mode);
+        	}
+        	else{
+        		alert("죄송합니다 다시 말씀해주세요");
+        		recommending2();
+        	}
+		});		
+}
+
+
+function confirmorder(){
+	var options={};
+		options.voicemsg= "다음과 같이 주문하셨습니다 주문을 이대로 완료하시겠습니까?"
+		gigagenie.voice.getVoiceText(options,function(result_cd,result_msg,extra){
+
+			if(extra.voicetext == "응" || extra.voicetext == "맞아" || extra.voicetext == "응 맞아"){
+				//menucount = 0;
+				//finalMenu = new Array;
+				//finalAmount = new Array;
+				for(i=0;i<finalMenu.length;i++)
+				{
+					var amSplit = finalAmount[i].split( ',');
+					var finalam = amSplit[0];
+
+					
+					if (finalMenu[i] == "카페라떼")
+					{
+						finalM = "caffe latte"
+					}
+					if (finalMenu[i] == "바닐라라떼")
+					{
+						finalM = "vanilla latte"
+					}
+					if (finalMenu[i] == "카푸치노")
+					{
+						finalM = "cappuccino"
+					}
+					if (finalMenu[i] == "아메리카노")
+					{
+						finalM = "americano"
+					}
+					if (finalMenu[i] == "카페모카")
+					{
+						finalM = "caffe mocha"
+					}
+					if (finalMenu[i] == "카라멜마끼아또")
+					{
+						finalM = "caramel maki"
+					}
+					if (finalMenu[i] == "녹차라떼")
+					{
+						finalM = "greentea latte"
+					}
+					
+					alert("전달하는 값:"+finalM);
+					status_order(finalM, parseInt(finalam))
+				}
+				confirmfinal();
+				//goReplace('payend.html');
+			}
+			if(extra.voicetext == "아니" || extra.voicetext == "아니야" || extra.voicetext == "다시"){
+				for(i=0;i<menucount;i++)
+        		{
+        			document.getElementById('Menu'+String(i+1)).innerText = ' ';
+        			finalMenu.pop();
+        			finalAmount.pop();
+        		}
+				menucount = 0;
+			}
+			if(extra.voicetext == "추가" || extra.voicetext == "추가할게" || extra.voicetext == "추가할래"){
+				sendTTSAPI("추가하실 메뉴를 정하시면 기가지니를 불러주세요!");
+			}
+    		if(result_cd===200){
+        		//console.log("Received Text is "+extra.voicetext);
+        		alert(extra.voicetext);
+        		//alert(options.mode);
+        	}
+        	else{
+        		alert("죄송합니다 다시 말씀해주세요");
+        		confirmorder();
+        	}
+		});
+}
+
+
+function sendTTSAPI(ttstext) {
+	var options={};
+	alert("startTTS")
+	options.ttstext = ttstext;
+	gigagenie.voice.sendTTS(options,function(result_cd,result_msg,extra) {
+		
+	if(result_cd == 200) {
+		}
+	else if(result_cd == 501){} // KWS에 의해 정지됨 (Pause/Resume)
+	else if(result_cd == 503){} // StopTTS에 의해 정지됨 (Pause/Resume)
+	alert(result_cd);
+	
+	});
+}
+
+gigagenie.media.onMuteRequest=function(extra){
+	if(extra) console.log("Mute!");
+	else console.log("unMute!");
+};
+function stopTTS() {
+	alert("음성인식 중단 요청");
+	var options={};
+	gigagenie.voice.stopTTS(options,function(result_cd, result_msg, extra) {
+		if (result_cd==200) {
+			alert("음성인식 중단 성공");
+		}
+		else if (result_cd==404) {
+			alert("음성인식 실행 중이 아님");
+		}
+		else {
+			alert("음성인식 중단 실패: " + result_msg);
+		}
+	});
+}
+
+
+function goReplace(str) { 
+	location.replace(str); 
+}
+
+function confirmfinal(){
+	
+	var options={};
+		options.voicemsg= "위와 같이 주문이 완료되셨습니다 결제를 진행하시겠습니까?"
+		gigagenie.voice.getVoiceText(options,function(result_cd,result_msg,extra){
+
+			if(extra.voicetext == "응"|| extra.voicetext == "네"){
+				status_pay('yes');
+			}
+			if(extra.voicetext == "아니" || extra.voicetext == "아니야" || extra.voicetext == "취소"){
+				//홈으로 돌아가면서 로그인상태 해제 및 인사
+				sendTTSAPI("주문을 취소합니다 다시 시도해 주세요");
+				truncatetmp('yes');
+				//goReplace('video.html');
+				menucount = 0;
+			}
+    		if(result_cd===200){
+        		//console.log("Received Text is "+extra.voicetext);
+        		alert(extra.voicetext);
+        		//alert(options.mode);
+        	}
+        	else{
+        		alert("죄송합니다 다시 말씀해주세요");
+        		confirmfinal();
+        	}
+		});
+}
+
+function truncatetmp(yes){
+		if(yes == "yes"){
+			$.ajax({
+			url: "truncatetmp.php",
+			method: "POST",
+			success: function(data){
+				if(data == '2'){
+					alert("로그아웃");
+
+					window.location.href="video.html";
+				}
+				else{
+					alert("로그아웃 실패");
+				}
+			}
+			})
+		}
+		else{
+			alert("error");
+		}
+	}
+
+var pricesum = 0;
+function status_order(menu, cnt){
+		alert("order"+menu+cnt);
+		$.ajax({
+			url: "ordercheck.php",
+			method: "POST",
+			data: {
+				menu : menu,
+				cnt : cnt,
+			},
+			success: function(data){
+				alert(data);
+				data = Number(data)
+				pricesum = pricesum + data;
+				document.getElementById('Menu6').innerText = "총 결제 금액: " + pricesum;
+				if(data == '2'){
+					alert("주문 성공");
+					//window.location.href="main.html";
+				}
+				else if(data == '4'){
+					alert("존재하지 않는 메뉴입니다.");
+				}
+				else{
+					alert("잘못된 입력값입니다. 다시 입력해주세요."+data);
+				}
+			}
+		})
+	}
+function status_pay(yes){
+		if(yes == "yes"){
+			alert("finalpay "+yes);
+			$.ajax({
+			url: "finalpay.php",
+			method: "POST",
+			success: function(data){
+				alert(data);
+				if(data == '2'){
+					alert("결제 성공");
+
+					window.location.href="payend.html";
+				}
+				else{
+					alert("결제 실패"+data);
+				}
+			}
+			})
+		}
+		else{
+			alert("추가 주문이 가능합니다.");
+		}
+	}
+
+
+
+
+
+</script>
+</head>
+
+<body onload=init()>
+    <h1>지니 알바생 주문 화면</h1>
+    <div id="Menu" style="font-size: 30pt height: 50px; text-align: center;z-index:1"><주문 메뉴></div>
+    <div id="Menu1" style="font-size: 30pt height: 50px; text-align: center;z-index:1"></div>
+    <div id="Menu2" style="font-size: 30pt height: 50px; text-align: center;z-index:1"></div>
+    <div id="Menu3" style="font-size: 30pt height: 50px; text-align: center;z-index:1"></div>
+    <div id="Menu4" style="font-size: 30pt height: 50px; text-align: center;z-index:1"></div>
+    <div id="Menu5" style="font-size: 30pt height: 50px; text-align: center;z-index:1"></div>
+    <div id="Menu6" style="font-size: 30pt height: 50px; text-align: center;z-index:1"></div>
+    <div id="Menu7" style="font-size: 30pt height: 50px; text-align: center;z-index:1"></div>
+    <div id="Menu8" style="font-size: 30pt height: 50px; text-align: center;z-index:1"></div>
+    <div id="Menu9" style="font-size: 30pt height: 50px; text-align: center;z-index:1"></div>
+    <div id="Menu10" style="font-size: 30pt height: 50px; text-align: center;z-index:1"></div>
+    <button onclick="goReplace('video.html')" >홈화면으로 이동</button>
+	<div id="top">
+    	주문을 원하시면 " <span>주문</span>" 혹은 "<span>주문할게</span>"" 라고 말해주세요.<br>
+		매장정보를 원하시면 " <span>매장정보</span>" 혹은 "<span>매장정보 알려줘</span>"" 라고 말해주세요.<br/>
+		매장정보 : (“화장실 위치“, “와이파이 비밀번호“, “영업시간”)
+		<br/>
+		<br/>
+    </div>
+</body>
+</html>

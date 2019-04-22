@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>myoder-complete</title>
+	<meta charset="utf-8">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+	<style>
+	body{
+		width: 100%;
+		height: 100%;
+		background-color: gray;
+		color: white;
+		text-align: center;
+		font-size: 35pt;
+		font-weight: 900;
+	}
+	</style>
+</head>
+<body>
+<div id="text">
+	제품이 준비되었습니다.<br/>
+	카운터에서 받아가십시오. <br/>
+</div>
+<script>
+	window.onload = function(){
+		var height = window.innerHeight;
+		$('#text').css('margin-top',height*0.3);	
+
+	}
+</script>
+</body>
+</html>

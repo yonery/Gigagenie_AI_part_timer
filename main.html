@@ -1,0 +1,112 @@
+<?php
+	session_start();
+	echo $_SESSION["status"];
+?>
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<meta charset="utf-8">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+</head>
+<body>
+<h1> NOW status : <?php echo $_SESSION["status"]; ?></h1>
+<input type="text" id="input1" /><br />
+<input type="text" id="input2" /><br />
+<input type="text" id="input3" /><br />
+<input type="button" id="sub" value="sub" onclick="oper()" />
+
+<script>
+	function oper(){
+		var first = document.getElementById("input1").value;
+		var second = document.getElementById("input2").value;
+		var third = document.getElementById("input3").value;
+		alert(first);
+
+		var status = '<?php echo $_SESSION["status"]; ?>';
+
+		if (status == 0){
+			status_login(first);
+		}
+		else if (status == 1){
+			status_order(first, second, third);
+		}
+		else if (status == 2){
+			status_pay(first);
+		}
+		else{
+			alert("info");
+		}
+	}
+	function status_login(userid){
+		alert("login"+userid);
+		$.ajax({
+			url: "login.php",
+			method: "POST",
+			data: {
+				userid : userid
+			},
+			success: function(data){
+				if(data == '1'){
+					alert("존재하지 않는 회원 정보 입니다.");
+				}
+				if(data == '2'){
+					window.location.href="main.html";
+				}
+				else{
+					alert("잘못된 입력값입니다. 다시 입력해주세요.");
+				}
+			}
+		})
+	}
+	function status_order(menu, cnt, add){
+		alert("order"+menu+cnt+add);
+		$.ajax({
+			url: "order.php",
+			method: "POST",
+			data: {
+				menu : menu,
+				cnt : cnt,
+				add : add
+			},
+			success: function(data){
+				if(data == '2'){
+					alert("주문 성공");
+					window.location.href="main.html";
+				}
+				else if(data == '3'){
+					window.location.href="main.html";
+				}
+				else if(data == '4'){
+					alert("존재하지 않는 메뉴입니다.");
+				}
+				else{
+					alert("잘못된 입력값입니다. 다시 입력해주세요."+data);
+				}
+			}
+		})
+	}
+	function status_pay(yes){
+		if(yes == "yes"){
+			alert("pay "+yes);
+			$.ajax({
+			url: "pay.php",
+			method: "POST",
+			success: function(data){
+				if(data == '2'){
+					alert("결제 성공");
+					window.location.href="main.html";
+				}
+				else{
+					alert("결제 실패"+data);
+				}
+			}
+			})
+		}
+		else{
+			alert("추가 주문이 가능합니다.");
+		}
+	}
+</script>
+</body>
+</html>
