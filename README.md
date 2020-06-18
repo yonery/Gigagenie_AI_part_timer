@@ -5,6 +5,8 @@ Gigagenie Devchallenge Contest (by. team Genius)
 
 ● back-end - PHP, Ajax, MySQL
 
+● Server OS - Linux CentOS
+
 
 ![image](https://user-images.githubusercontent.com/20718935/85038757-efe83b00-b1c1-11ea-8abe-b31d95b7ff3f.png)
 
