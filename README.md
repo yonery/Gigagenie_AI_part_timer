@@ -1,6 +1,9 @@
 # 기가지니 공모전 : AI알바생 
 Gigagenie Devchallenge Contest (by. team Genius)
 
+● front-end - HTML, CSS, Javascript 
+
+● back-end - PHP, Ajax, MySQL
 
 
 ![image](https://user-images.githubusercontent.com/20718935/85038757-efe83b00-b1c1-11ea-8abe-b31d95b7ff3f.png)
